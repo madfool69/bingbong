@@ -1,0 +1,689 @@
+#include <iostream>
+#include <Windows.h>
+#include <fstream>
+#include <time.h>;
+#pragma warning( disable : 4996 )
+using namespace std;
+char yt;
+string hari;
+float diskon = 0;
+int mnu;
+int pil;
+int jumlah_barang;
+int no_pelanggan = 1;
+int sblm_diskon = 0;
+int total = 0;
+int keuntungan[3] = { 0,0,0 };
+int total_keuntungan;
+struct pembelian {
+	string nama[3];
+	string kode[3];
+	int jumlah[3];
+	int harga[3];
+	int total[3];
+	int diskon[3];
+};
+struct pembelian rekap;
+struct barang
+{
+	string nama[9] = {
+	"Gedang",
+	"Melon",
+	"Soto",
+	"Bakso",
+	"Pancong",
+	"Martabak",
+	"Yupi",
+	"Kiss",
+	"Nasi Gr. " };
+	string kode[9] = { "[1] ","[2] ", "[3] ", "[4] ", "[5] ", "[6] ",
+	"[7] ", "[8] ", "[9] " };
+	int stock[9];
+	int harga[9];
+};
+struct barang makanan;
+string username;
+string password;
+void multilogin();
+void Admin();
+void User();
+void isiStok_Harga()
+{
+	int x;
+	srand(time(0));
+	for (x = 0; x < 9; x++)
+	{
+		makanan.stock[x] = rand() % 20;
+		makanan.harga[x] = (rand() % 20) * 1000;
+	}
+}
+void list_makanan()
+{
+	system("cls");
+	cout << endl;
+	cout << "==================================================" <<
+		endl;
+	cout << "|| CHINESE RESTAURANT ||" <<
+		endl;
+	cout << "==================================================" <<
+		endl;
+	cout << "|| | | ||" <<
+		endl;
+	cout << "|| " << makanan.kode[0] << makanan.nama[0] << "\t| " <<
+		makanan.kode[1] << makanan.nama[1] << "\t| " << makanan.kode[2] <<
+		makanan.nama[2] << "\t||" << endl;
+	cout << "||\t" << makanan.stock[0] << "\t|\t" << makanan.stock[1]
+		<< "\t|\t" << makanan.stock[2] << "\t||" << endl;
+	cout << "|| > Rp " << makanan.harga[0] << " <\t| > Rp " <<
+		makanan.harga[1] << " <\t| > Rp " << makanan.harga[2] << " <\t||"
+		<< endl;
+	cout << "||_____|_____|______||" <<
+		endl;
+	cout << "|| | | ||" <<
+		endl;
+	cout << "|| " << makanan.kode[3] << makanan.nama[3] << "\t| " <<
+		makanan.kode[4] << makanan.nama[4] << "\t| " << makanan.kode[5] <<
+		makanan.nama[5] << "\t||" << endl;
+	cout << "||\t" << makanan.stock[3] << "\t|\t" << makanan.stock[4]
+		<< "\t|\t" << makanan.stock[5] << "\t||" << endl;
+	cout << "|| > Rp " << makanan.harga[3] << " <\t| > Rp " <<
+		makanan.harga[4] << " <\t| > Rp " << makanan.harga[5] << " <\t||"
+		<< endl;
+	cout << "||_____|_____|______||" <<
+		endl;
+	cout << "|| | | ||" <<
+		endl;
+	cout << "|| " << makanan.kode[6] << makanan.nama[6] << "\t| " <<
+		makanan.kode[7] << makanan.nama[7] << "\t| " << makanan.kode[8] <<
+		makanan.nama[8] << "\t||" << endl;
+	cout << "||\t" << makanan.stock[6] << "\t|\t" << makanan.stock[7]
+		<< "\t|\t" << makanan.stock[8] << "\t||" << endl;
+	cout << "|| > Rp " << makanan.harga[6] << " <\t| > Rp " <<
+		makanan.harga[7] << " <\t| > Rp " << makanan.harga[8] << " <\t||"
+		<< endl;
+	cout << "|| | | ||" <<
+		endl;
+	cout << "==================================================" <<
+		endl;
+}
+void baranglain() //void anda ingin barang lain
+{
+	cout << endl;
+	cout << " Apakah anda ingin barang lain? (y/t)" << endl;
+	cin >> yt;
+	if (yt == 'y' || yt == 'Y')
+	{
+		User();
+	}
+	else if (yt == 't' || yt == 'T') {}
+}
+void wait()
+{
+	clock_t tunggu;
+	int i = 0;
+	tunggu = clock() + CLOCKS_PER_SEC;
+	while (clock() < tunggu) {}
+}
+void gambar()
+{
+	cout << R"(
+_ _ _
+| | | | | |
+| || |_ _ _ _ _ | | _ _ _ _ _
+| _| ' \ / ` | ' \| |/ / | | |/ _ \| | | |
+| || | | | (| | | | | <| || | () | |_| |
+\_|| ||\,|| |||\\\_, |\_/ \,|
+__/ |
+|_/ )" << endl;
+}
+void nota() {
+	system("cls");
+	sblm_diskon = makanan.harga[mnu - 1] * jumlah_barang;
+	total = sblm_diskon - (sblm_diskon * diskon);
+	makanan.stock[mnu - 1] = makanan.stock[mnu - 1] - jumlah_barang;
+	time_t waktu;
+	int i = 0;
+	{
+		time(&waktu);
+		cout << ctime(&waktu) << endl;
+		wait();
+	}
+	cout << "+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + " << endl;
+	cout << " NOTA PEMBAYARAN " << endl;
+	cout << "+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + " << endl;
+	cout << "Order #" << no_pelanggan << endl;
+	cout << "==========================================================" <<
+		endl;
+	cout << "|| NAMA | HARGA |JUMLAH | TOTAL|| " << endl;
+	cout <<
+		"||------------------------------------------------------||" << endl;
+	cout << "||" << makanan.kode[mnu - 1] << makanan.nama[mnu - 1] <<
+		"\t| Rp " << makanan.harga[mnu - 1] << "\t| " <<
+		jumlah_barang << "\t| Rp " << total << "\t|| " << endl;
+	cout <<
+		"==========================================================" <<
+		endl << endl;
+	cout << "Ketik hari ini untuk mendapat promo diskon" << endl;
+	cin >> hari; // konfirmasi input ulang di menu yang sama
+	cout << endl;
+	if (hari == "Sabtu" || hari == "Minggu")
+	{
+		diskon = 0;
+		cout << "Mohon maaf hari ini tidak ada diskon." << endl;
+		Sleep(2000);
+	}
+	else if (hari == "hari_ini")
+	{
+		diskon = 1;
+		cout << "SELAMAT ANDA DI DISKON 100% !!" << endl;
+		Sleep(2000);
+	}
+	else
+	{
+		diskon = 0.2;
+		cout << "Selamat anda mendapat diskon 20% !" << endl;
+		Sleep(2000);
+	}
+	sblm_diskon = makanan.harga[mnu - 1] * jumlah_barang;
+	total = sblm_diskon - (sblm_diskon * diskon);
+	system("cls");
+	cout << "+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + " << endl;
+	cout << " NOTA PEMBAYARAN " << endl;
+	cout << "+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + " << endl;
+	cout << "Order #" << no_pelanggan << endl;
+	cout <<
+		"==========================================================" << endl;
+	cout << "|| NAMA | HARGA |JUMLAH | TOTAL || " << endl;
+	cout << "||------------------------------------------------------||" << endl;
+	cout << "||" << makanan.kode[mnu - 1] << makanan.nama[mnu - 1] <<
+		"\t| Rp " << makanan.harga[mnu - 1] << "\t| " <<
+		jumlah_barang << "\t| Rp " << total << "\t|| " << endl;
+	cout <<
+		"==========================================================" <<
+		endl << endl;
+	char yt;
+	cout << "Apakah Pesanan Benar ?" << endl;
+	cout << "(Tekan Y untuk Ya, T untuk Tidak!)";
+	cin >> yt; // konfirmasi input ulang di menu yang sama
+	cout << endl;
+	if (yt == 'Y' || yt == 'y') {
+		rekap.kode[no_pelanggan - 1] = makanan.kode[mnu - 1];
+		rekap.nama[no_pelanggan - 1] = makanan.nama[mnu - 1];
+		rekap.harga[no_pelanggan - 1] = makanan.harga[mnu - 1];
+		rekap.jumlah[no_pelanggan - 1] = jumlah_barang;
+		rekap.total[no_pelanggan - 1] = total;
+		rekap.diskon[no_pelanggan - 1] = diskon * 100;
+		keuntungan[no_pelanggan - 1] = total;
+		no_pelanggan++;
+		gambar();
+		cout << "Beli lagi??" << endl;
+		cout << "(Tekan Y untuk Ya, T untuk Tidak!)";
+		cin >> yt; // konfirmasi input ulang di menu yang sama
+		cout << endl;
+		if (yt == 'Y' || yt == 'y') {
+			multilogin();
+		}
+		else if (yt == 'T' || yt == 't') {
+		}
+	}
+	else if (yt == 'T' || yt == 't') {
+		baranglain();
+	}
+}
+void User()
+{
+ulang_input_jumlah:
+	system("cls");
+	list_makanan();
+	cout << "Pilih Kode Barang : "; cin >> mnu; //Pilih barang sesuai kan / minum, sen ini tak kasih contoh di makan..cout << endl;
+	if (mnu >= 1 && mnu <= 9) {
+		cout << makanan.kode[mnu - 1] << makanan.nama[mnu - 1] <<
+			"\tHarga : " << makanan.harga[mnu - 1] << "\tJumlah stok <"
+			<< makanan.stock[mnu - 1] << ">" << endl; // nampilin jumlah makanan dan stok e sesuai pilihan..
+	}
+	else
+	{
+		cout << "KODE BARANG TIDAK ADA!";
+		Sleep(2000);
+		goto ulang_input_jumlah;
+	}
+	cout << "Jumlah pesanan : "; cin >> jumlah_barang;
+	if (jumlah_barang <= makanan.stock[mnu - 1])
+	{
+		nota();
+	}
+	else if (jumlah_barang > makanan.stock[mnu - 1])
+	{
+		char yt;
+		cout << "Stok barang kurang!!" << endl;
+	ulang_salah_stock:
+		cout << "Apakah ingin Input ulang?" << endl;
+		cout << "(Tekan Y untuk Ya, T untuk Tidak!)";
+		cin >> yt; // konfirmasi input ulang di menu yang sama
+		cout << endl;
+		if (yt == 'Y' || yt == 'y')
+		{
+			goto ulang_input_jumlah;
+		}
+		else if (yt == 'T' || yt == 't')
+		{
+			baranglain();
+		}
+		else
+		{
+			cout << "WARNING: Silakan ketik 'Y' atau 'T'" << endl;
+			goto ulang_salah_stock;
+		}
+	}
+}
+void list()
+{
+	cout <<
+		"================================================================== " << endl;
+	cout << "|| NAMA | POSISI | STOK | Harga || " << endl;
+	cout << "||--------------------------------------------------------------|| " << endl;
+	for (int i = 0; i < 9; i++) {
+		cout << "||" << makanan.kode[i] << makanan.nama[i] << "\t| "
+			<< &makanan.nama[i] << "\t| " << makanan.stock[i] << "\t| Rp " << makanan.harga[i] << "\t || " << endl;
+	}
+	cout <<
+		"||--------------------------------------------------------------|| " << endl;
+	cout << " || CHINESE RESTAURANT || " << endl;
+	cout << "================================================================== " << endl << endl;
+}
+
+int stok() {
+	int kode = 0;
+	int jstock;
+restart_stok:
+	system("color 55");
+	system("cls");
+	cout << "====================================" << endl;
+	cout << " LIST STOK CHINESE RESTAURANT " << endl;
+	cout << "====================================" << endl;
+	for (int i = 0; i < 9; i++) {
+		cout << makanan.kode[i] << makanan.nama[i] << "\t<" <<
+			makanan.stock[i] << ">" << endl;
+	}
+	cout << "Kode Barang : "; cin >> kode;
+	if (kode >= 1 && kode <= 9)
+	{
+		cout << makanan.kode[kode - 1] << makanan.nama[kode - 1] << " ada di Rak " << &makanan.nama[kode - 1] << " jumlah stok < " << makanan.stock[kode - 1] << ">" << endl << endl;
+	}
+	else
+	{
+		cout << "KODE BARANG TIDAK ADA!";
+		Sleep(2000);
+		goto restart_stok;
+	}
+	cout << " Update Stok : "; cin >> jstock; // input jumlah stock
+	makanan.stock[kode - 1] = jstock;
+	Sleep(500); cout << ". ";
+	Sleep(500); cout << ". ";
+	Sleep(500); cout << ". ";
+	cout << "Updated!" << endl << endl;
+	Sleep(500);
+	cout << makanan.kode[kode - 1] << makanan.nama[kode - 1] << " ada di Rak " << &makanan.nama[kode - 1] << " jumlah stok < " << makanan.stock[kode - 1] << ">" << endl << endl;
+	char yt;
+	cout << endl << "Apakah mau memasukkan data stok lagi?" << endl;
+	cout << "(Tekan Y untuk Ya, T untuk Tidak!)";
+	cin >> yt; // konfirmasi input ulang di menu yang sama
+	cout << endl;
+	if (yt == 'Y' || yt == 'y') {
+		stok();
+	}
+	if (yt == 'T' || yt == 't') {
+		Admin();
+	}
+	return 0;
+}
+void harga() {
+	int kode = 0;
+	int jharga;
+restart_harga:
+	system("color 4F");
+	system("cls");
+	cout << "====================================" << endl;
+	cout << " LIST HARGA CHINESE RESTAURANT " << endl;
+	cout << "====================================" << endl;
+	for (int i = 0; i < 9; i++) {
+		cout << makanan.kode[i] << makanan.nama[i] << "\t< Rp " <<
+			makanan.harga[i] << " >" << endl;
+	}
+	cout << "Kode Barang : "; cin >> kode;
+	if (kode >= 1 && kode <= 9)
+	{
+		cout << makanan.kode[kode - 1] << makanan.nama[kode - 1] << " ada di Rak " << &makanan.nama[kode - 1] << " harga satuan : Rp " << makanan.harga[kode - 1] << endl << endl;
+	}
+	else
+	{
+		cout << "KODE BARANG TIDAK ADA!";
+		Sleep(2000);
+		goto restart_harga;
+	}
+	cout << " Update Harga : "; cin >> jharga; // input jumlah stock
+	makanan.harga[kode - 1] = jharga;
+	Sleep(500); cout << ". ";
+	Sleep(500); cout << ". ";
+	Sleep(500); cout << ". ";
+	cout << "Updated!" << endl << endl;
+	Sleep(500);
+	cout << makanan.kode[kode - 1] << makanan.nama[kode - 1] << " ada di Rak " << &makanan.nama[kode - 1] << " harga satuan : Rp " << makanan.harga[kode - 1] << endl << endl;
+	char yt;
+	cout << endl << "Apakah mau memasukkan data harga lagi?" << endl;
+	cout << "(Tekan Y untuk Ya, T untuk Tidak!)";
+	cin >> yt; // konfirmasi input ulang di menu yang sama
+	cout << endl;
+	if (yt == 'Y' || yt == 'y') {
+		harga();
+	}
+	if (yt == 'T' || yt == 't') {
+		Admin();
+	}
+}
+void menu()
+{
+	int kode = 0;
+	string jmenu;
+restart_menu:
+	system("color 4F");
+	system("cls");
+	cout << "====================================" << endl;
+	cout << " LIST MENU CHINESE RESTAURANT " << endl;
+	cout << "====================================" << endl;
+	for (int i = 0; i < 9; i++) {
+		cout << makanan.kode[i] << makanan.nama[i] << "\t< Rp " <<
+			makanan.harga[i] << " >" << endl;
+	}
+	cout << "Kode Barang : "; cin >> kode;
+	if (kode >= 1 && kode <= 9)
+	{
+		cout << makanan.kode[kode - 1] << makanan.nama[kode - 1] << " ada di Rak " << &makanan.nama[kode - 1] << " harga satuan : Rp " << makanan.harga[kode - 1] << endl << endl;
+	}
+	else
+	{
+		cout << "KODE BARANG TIDAK ADA!";
+		Sleep(2000);
+		goto restart_menu;
+	}
+	cout << " Update Menu : "; cin >> jmenu; // input jumlah stock
+	makanan.nama[kode - 1] = jmenu;
+	Sleep(500); cout << ". ";
+	Sleep(500); cout << ". ";
+	Sleep(500); cout << ". ";
+	cout << "Updated!" << endl << endl;
+	Sleep(500);
+	cout << makanan.kode[kode - 1] << makanan.nama[kode - 1] << " ada di Rak " << &makanan.nama[kode - 1] << " harga satuan : Rp " << makanan.harga[kode - 1] << endl << endl;
+	char yt;
+	cout << endl << "Apakah mau memasukkan data harga lagi?" << endl;
+	cout << "(Tekan Y untuk Ya, T untuk Tidak!)";
+	cin >> yt; // konfirmasi input ulang di menu yang sama
+	cout << endl;
+	if (yt == 'Y' || yt == 'y') {
+		harga();
+	}
+	if (yt == 'T' || yt == 't') {
+		multilogin();
+	}
+}
+void exportTxtAdmin()
+{
+	fstream myFile;
+	myFile.open(makanan.nama[1]+ "LIST DAPUR.txt", ios::out);
+	time_t waktu;
+	int i = 0;
+	time(&waktu);
+	myFile << ctime(&waktu) << endl;
+	wait();
+	myFile <<
+		"================================================================== " << endl;
+		myFile << " A D M I N I S T R A T O R " << endl;
+		myFile << " CHINESE RESTAURANT " << endl;
+		myFile << "================================================================== " << endl << endl;
+		myFile << "================================================================== " << endl;
+		myFile << "|| NAMA | POSISI | STOK | Harga || " << endl;
+		myFile << "||--------------------------------------------------------------|| " << endl;
+		for (int i = 0; i < 9; i++)
+		{
+			myFile << "||" << makanan.kode[i] << makanan.nama[i] << "\t| " << &makanan.nama[i] << " \t | " << makanan.stock[i] << "\t| Rp " << makanan.harga[i] << "\t|| " << endl;
+		}
+	myFile <<
+		"||--------------------------------------------------------------|| " << endl;
+		myFile << "|| CHINESE RESTAURANT || " << endl;
+		myFile <<"================================================================== " << endl << endl;
+		myFile.close();
+	cout << "List Exported!";
+	cout << endl << "Apakah mau mencetak ulang ?" << endl;
+	cout << "(Tekan Y untuk Ya, T untuk Tidak!)";
+	cin >> yt; // konfirmasi input ulang di menu yang sama
+	cout << endl;
+	if (yt == 'Y' || yt == 'y') {
+		exportTxtAdmin();
+	}
+	if (yt == 'T' || yt == 't') {
+		Admin();
+	}
+}
+void exportNota()
+{
+	ofstream out("Nota.txt");
+	time_t waktu;
+	int i = 0;
+	{
+		time(&waktu);
+		out << ctime(&waktu) << endl;
+		wait();
+	}
+	out << "+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + " << endl;
+		out << " NOTA PEMBAYARAN " << endl;
+		out << "+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + " << endl;
+		out << "Order #" << no_pelanggan << endl;
+	out << "==========================================================" << endl;
+	out << "|| NAMA | HARGA |JUMLAH | TOTAL ||"
+		<< endl;
+	out << "||------------------------------------------------------||"
+		<< endl;
+	out << "||" << makanan.kode[mnu - 1] << makanan.nama[mnu - 1] <<
+		"\t| Rp " << makanan.harga[mnu - 1] << "\t| " <<
+		jumlah_barang << "\t| Rp " << total << "\t|| " << endl;
+	out << "=========================================================="
+		<< endl << endl;
+	out.close();
+	cout << "List Exported!";
+	cout << endl << "Apakah mau mencetak ulang ?" << endl;
+	cout << "(Tekan Y untuk Ya, T untuk Tidak!)";
+	cin >> yt; // konfirmasi input ulang di menu yang sama
+	cout << endl;
+	if (yt == 'Y' || yt == 'y') {
+		exportNota();
+	}
+	if (yt == 'T' || yt == 't') {
+		Admin();
+	}
+}
+void Admin()
+{
+intro:
+	system("color E0");
+	system("cls");
+	cout <<
+		"================================================================== " << endl;
+		cout << " A D M I N I S T R A T O R " << endl;
+		cout << " CHINESE RESTAURANT " << endl;
+		cout << "================================================================== " << endl << endl;
+		list();
+	cout << "1. Edit Stock" << endl;
+	cout << "2. Edit Harga" << endl;
+	cout << "3. Edit Menu" << endl;
+	cout << "4. EXPORT LIST.TXT" << endl;
+	cout << "5. EXPORT NOTA.TXT (Terbaru)" << endl;
+	cout << "6. Exit" << endl << endl;
+	cout << "Pilihan : "; cin >> pil;
+	if (pil == 1)
+	{
+		stok();
+	}
+	else if (pil == 2)
+	{
+		harga();
+	}
+	else if (pil == 3)
+	{
+		menu();
+	}
+	else if (pil == 4)
+	{
+		exportTxtAdmin();
+	}
+	else if (pil == 5)
+	{
+		exportNota();
+	}
+	else if (pil == 6)
+	{
+		multilogin();
+	}
+	else
+	{
+		cout << "WARNING!! :Silakan ketik '1', '2' atau '3'" << endl;
+		Sleep(2000);
+		goto intro;
+	}
+}
+void exportNotaSA() {
+	ofstream nota("NOTA REKAP SUPER ADMIN.txt");
+	time_t waktu;
+	int i = 0;
+	{
+		time(&waktu);
+		nota << ctime(&waktu) << endl;
+		wait();
+	}
+	nota << "+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + " << endl;
+		nota << " REKAP SUPER ADMIN " << endl;
+		nota << "+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + " << endl;
+		nota << "TOTAL PELANGGGAN : " << no_pelanggan - 1 << endl;
+	nota << "TOTAL PENDAPATAN : Rp " << total_keuntungan << endl <<
+		endl;
+	for (int x = 0; x < 3; x++)
+	{
+		nota << x + 1 << ". " << rekap.kode[x] << rekap.nama[x] <<
+			"\tRp " << rekap.harga[x] << endl << endl;
+	}
+	nota.close();
+	cout << "List Exported!";
+	cout << endl << "Apakah mau mencetak ulang ?" << endl;
+	cout << "(Tekan Y untuk Ya, T untuk Tidak!)";
+	cin >> yt; // konfirmasi input ulang di menu yang sama
+	cout << endl;
+	if (yt == 'Y' || yt == 'y') {
+		exportNotaSA();
+	}
+	if (yt == 'T' || yt == 't') {
+		multilogin();
+	}
+}
+void Super_Admin()
+{
+intro:
+	system("color E3");
+	system("cls");
+	cout << "============================" << endl;
+	cout << " WELCOME " << endl;
+	cout << " SUPER ADMIN " << endl;
+	cout << " CHINESE RESTAURANT " << endl;
+	cout << "============================" << endl << endl;
+	total_keuntungan = keuntungan[0] + keuntungan[1] + keuntungan[2];
+	cout << "TOTAL PELANGGGAN : " << no_pelanggan - 1 << endl;
+	cout << "TOTAL PENDAPATAN : " << total_keuntungan << endl << endl;
+	cout << "History Pembelian : " << endl;
+	for (int x = 0; x < 3; x++)
+	{
+		cout << x + 1 << ". " << rekap.kode[x] << rekap.nama[x] <<
+			"\tRp " << rekap.harga[x] << endl << endl;
+	}
+	cout << "Cetak Rekap ?" << endl;
+	cout << "(Tekan Y untuk Ya, T untuk Tidak!)";
+	cin >> yt; // konfirmasi input ulang di menu yang sama
+	cout << endl;
+	if (yt == 'Y' || yt == 'y') {
+		exportNotaSA();
+	}
+	if (yt == 'T' || yt == 't') {
+		multilogin();
+	}
+}
+void multilogin()
+{
+	diskon = 0;
+Multilogin:
+	system("cls");
+	system("color F5");
+	system("cls");
+	cout << "====================================" << endl;
+	cout << " WELCOME #" << no_pelanggan << " TO " << endl;
+	cout << " CHINESE RESTAURANT " << endl << endl;
+	cout << " MADE BY: " << endl;
+	cout << " > DAVID CHRISTANTO " << endl;
+	cout << "====================================" << endl;
+	cout << endl;
+	cout << "Enter Username : ( User, Admin, Super Admin )" << endl;
+	cin >> username;
+	cout << "Enter Password :" << endl;
+	cin >> password;
+	if (username == "User")
+	{
+		if (password == "123")
+		{
+			User();
+		}
+		else
+		{
+			cout << "Sorry : Password is not Correct !" << endl;
+			Sleep(1000);
+			goto Multilogin;
+		}
+	}
+	else if (username == "Admin")
+	{
+		if (password == "1234")
+		{
+			Admin();
+		}
+		else
+		{
+			cout << "Sorry : Password is not Correct !" << endl;
+			Sleep(1000);
+			goto Multilogin;
+		}
+	}
+	else if (username == "SuperAdmin")
+	{
+		if (password == "12345")
+		{
+			Super_Admin();
+		}
+		else
+		{
+			cout << "Sorry : Password is not Correct !" << endl;
+			Sleep(1000);
+			goto Multilogin;
+		}
+	}
+	else
+	{
+		cout << "Sorry : Username not Found !" << endl;
+		Sleep(1000);
+		goto Multilogin;
+	}
+}
+int main()
+{
+	isiStok_Harga();
+	multilogin();
+	cout << "++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+	cout << "TERIMAKASIH TELAH MENGGUNAKAN PROGRAM SAYA, GBU!" << endl;
+	cout << "++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+	system("pause");
+	return 0;
+}
